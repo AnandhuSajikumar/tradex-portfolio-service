@@ -9,13 +9,13 @@ import java.math.BigDecimal;
 @Getter
 @Setter
 @NoArgsConstructor
-public class PortfolioRequest {
+public class PortfolioUpdateRequest {
     private Long userId;
     private Long stockId;
     private Integer quantity;
     private BigDecimal price;
 
-    public PortfolioRequest(Long userId, Long stockId, Integer quantity, BigDecimal price) {
+    public PortfolioUpdateRequest(Long userId, Long stockId, Integer quantity, BigDecimal price) {
         this.userId = userId;
         this.stockId = stockId;
         this.quantity = quantity;

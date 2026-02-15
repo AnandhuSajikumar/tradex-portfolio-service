@@ -1,13 +1,12 @@
 package com.spring.tradexportfolioservice.Controller;
 
-import com.spring.tradexportfolioservice.DTO.PortfolioRequest;
+import com.spring.tradexportfolioservice.DTO.PortfolioUpdateRequest;
 import com.spring.tradexportfolioservice.Service.PortfolioService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
 
 
 @RestController
@@ -18,7 +17,7 @@ public class PortfolioController {
     private final PortfolioService portfolioService;
 
     @PostMapping("/buy")
-    public void handleBuy(@RequestBody PortfolioRequest request){
+    public void handleBuy(@RequestBody PortfolioUpdateRequest request){
         portfolioService.handleBuy(
                 request.getUserId(),
                 request.getStockId(),
@@ -28,7 +27,7 @@ public class PortfolioController {
     }
 
     @PostMapping("/sell")
-    public void handleSell(@RequestBody PortfolioRequest request){
+    public void handleSell(@RequestBody PortfolioUpdateRequest request){
         portfolioService.handleSell(
                 request.getUserId(),
                 request.getStockId(),
