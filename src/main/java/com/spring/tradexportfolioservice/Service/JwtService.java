@@ -6,11 +6,11 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
 import java.util.Date;
+import java.util.List;
 
 @Service
 public class JwtService {
@@ -23,9 +23,17 @@ public class JwtService {
         return extractAllClaims(token).getSubject();
 
     }
-    public boolean isTokenValid(String token, UserDetails userDetails) {
-        return extractUsername(token).equals(userDetails.getUsername())
-                && !isExpired(token);
+
+    public Long extractUserId(String token){
+        return extractAllClaims(token).get("userId",Long.class);
+    }
+
+    public List<String> extractRoles(String token) {
+        return extractAllClaims(token).get("roles", List.class);
+    }
+
+    public boolean isTokenValid(String token) {
+        return !isExpired(token);
     }
 
     public boolean isExpired(String token) {
