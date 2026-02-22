@@ -38,4 +38,27 @@ public class PortfolioController {
                 request.getStockId(),
                 request.getQuantity());
     }
+
+    @PostMapping("/rollback-buy")
+    public void rollbackBuy(
+            @RequestHeader(value = "Idempotency-Key", required = false) String idempotencyKey,
+            @RequestBody PortfolioUpdateRequest request) {
+        portfolioService.rollbackBuy(
+                idempotencyKey,
+                request.getUserId(),
+                request.getStockId(),
+                request.getQuantity(),
+                request.getPrice());
+    }
+
+    @PostMapping("/rollback-sell")
+    public void rollbackSell(
+            @RequestHeader(value = "Idempotency-Key", required = false) String idempotencyKey,
+            @RequestBody PortfolioUpdateRequest request) {
+        portfolioService.rollbackSell(
+                idempotencyKey,
+                request.getUserId(),
+                request.getStockId(),
+                request.getQuantity());
+    }
 }
