@@ -1,5 +1,7 @@
 package com.spring.tradexportfolioservice.Service;
 
+import com.spring.tradexportfolioservice.Enums.IdempotencyStatus;
+import com.spring.tradexportfolioservice.Models.IdempotencyKey;
 import com.spring.tradexportfolioservice.Models.Portfolio;
 import com.spring.tradexportfolioservice.Repository.PortfolioRepository;
 import jakarta.transaction.Transactional;
@@ -13,28 +15,55 @@ import java.math.BigDecimal;
 public class PortfolioService {
 
     private final PortfolioRepository portfolioRepository;
+    private final IdempotencyService idempotencyService;
 
     @Transactional
-    public void handleBuy(Long userId, Long stockId, Integer quantity, BigDecimal price) {
+    public void handleBuy(String idempotencyKeyStr, Long userId, Long stockId, Integer quantity, BigDecimal price) {
 
-        Portfolio portfolio = portfolioRepository
-                .findByUserIdAndStockId(userId, stockId)
-                .orElse(Portfolio.createEmptyPortfolio(userId, stockId));
+        IdempotencyKey key = idempotencyService.createOrReturnKey(idempotencyKeyStr, userId);
+        if (key != null && key.getStatus() == IdempotencyStatus.COMPLETED) {
+            return; // Already processed
+        }
 
-        portfolio.addHoldings(quantity, price);
+        try {
+            Portfolio portfolio = portfolioRepository
+                    .findByUserIdAndStockId(userId, stockId)
+                    .orElse(Portfolio.createEmptyPortfolio(userId, stockId));
 
-        portfolioRepository.save(portfolio);
+            portfolio.addHoldings(quantity, price);
+
+            portfolioRepository.save(portfolio);
+
+            idempotencyService.markCompleted(idempotencyKeyStr);
+
+        } catch (Exception e) {
+            idempotencyService.markFailed(idempotencyKeyStr);
+            throw e;
+        }
     }
 
     @Transactional
-    public void handleSell(Long userId, Long stockId, Integer quantity) {
+    public void handleSell(String idempotencyKeyStr, Long userId, Long stockId, Integer quantity) {
 
-        Portfolio portfolio = portfolioRepository
-                .findByUserIdAndStockId(userId, stockId)
-                .orElseThrow(() -> new IllegalStateException("You do not own this portfolio"));
+        IdempotencyKey key = idempotencyService.createOrReturnKey(idempotencyKeyStr, userId);
+        if (key != null && key.getStatus() == IdempotencyStatus.COMPLETED) {
+            return; // Already processed
+        }
 
-        portfolio.removeHoldings(quantity);
+        try {
+            Portfolio portfolio = portfolioRepository
+                    .findByUserIdAndStockId(userId, stockId)
+                    .orElseThrow(() -> new IllegalStateException("You do not own this portfolio"));
 
-        portfolioRepository.save(portfolio);
+            portfolio.removeHoldings(quantity);
+
+            portfolioRepository.save(portfolio);
+
+            idempotencyService.markCompleted(idempotencyKeyStr);
+
+        } catch (Exception e) {
+            idempotencyService.markFailed(idempotencyKeyStr);
+            throw e;
+        }
     }
 }

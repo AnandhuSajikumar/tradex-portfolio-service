@@ -5,33 +5,37 @@ import com.spring.tradexportfolioservice.Service.PortfolioService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-
 @RestController
-@RequestMapping("/internal/protfolio")
+@RequestMapping("/portfolio")
 @RequiredArgsConstructor
 public class PortfolioController {
 
     private final PortfolioService portfolioService;
 
     @PostMapping("/buy")
-    public void handleBuy(@RequestBody PortfolioUpdateRequest request){
+    public void handleBuy(
+            @RequestHeader(value = "Idempotency-Key", required = false) String idempotencyKey,
+            @RequestBody PortfolioUpdateRequest request) {
         portfolioService.handleBuy(
+                idempotencyKey,
                 request.getUserId(),
                 request.getStockId(),
                 request.getQuantity(),
-                request.getPrice()
-        );
+                request.getPrice());
     }
 
     @PostMapping("/sell")
-    public void handleSell(@RequestBody PortfolioUpdateRequest request){
+    public void handleSell(
+            @RequestHeader(value = "Idempotency-Key", required = false) String idempotencyKey,
+            @RequestBody PortfolioUpdateRequest request) {
         portfolioService.handleSell(
+                idempotencyKey,
                 request.getUserId(),
                 request.getStockId(),
-                request.getQuantity()
-        );
+                request.getQuantity());
     }
 }
