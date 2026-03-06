@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(ConcurrentRequestException.class)
-    @ResponseStatus(HttpStatus.CONFLICT) // 409 Conflict
+    @ResponseStatus(HttpStatus.CONFLICT)
     public ApiError handleConcurrentRequest(ConcurrentRequestException ex, HttpServletRequest request) {
         return new ApiError(
                 409,
