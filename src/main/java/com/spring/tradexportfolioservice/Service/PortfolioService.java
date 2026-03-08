@@ -9,6 +9,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.List;
+import com.spring.tradexportfolioservice.DTO.PortfolioResponse;
 
 @Service
 @RequiredArgsConstructor
@@ -112,5 +114,11 @@ public class PortfolioService {
             idempotencyService.markFailed(rollbackKey);
             throw e;
         }
+    }
+
+    public List<PortfolioResponse> getUserHoldings(Long userId) {
+        return portfolioRepository.findByUserId(userId).stream()
+                .map(p -> new PortfolioResponse(p.getId(), p.getStockId(), p.getQuantity(), p.getAvgBuyPrice()))
+                .toList();
     }
 }
